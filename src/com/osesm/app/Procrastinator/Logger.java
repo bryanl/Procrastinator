@@ -17,4 +17,8 @@ public class Logger {
     public static void e(String message, Throwable t) {
         Log.e(TAG, message, t);
     }
+
+    public static void w(String message) {
+        Log.w(TAG, message);
+    }
 }
