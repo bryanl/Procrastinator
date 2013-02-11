@@ -32,7 +32,7 @@ public class Comment {
             try {
                 JSONObject item = array.getJSONObject(i);
                 String username = item.getString("username");
-                String commentText = item.getString("comment");
+                String commentText = CommentParser.parse(item.getString("comment"));
                 String id = item.getString("id");
                 double grayedOutPercent = item.getDouble("grayedOutPercent");
                 String replyId = item.getString("reply_id");

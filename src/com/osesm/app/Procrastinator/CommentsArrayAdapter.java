@@ -2,6 +2,7 @@ package com.osesm.app.Procrastinator;
 
 import android.content.Context;
 import android.content.res.Resources;
+import android.text.util.Linkify;
 import android.util.DisplayMetrics;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -35,6 +36,7 @@ public class CommentsArrayAdapter extends ArrayAdapter<NestedComment> {
 
         TextView commentText = (TextView) row.findViewById(R.id.comment_text);
         commentText.setText(comment.getCommentText());
+        Linkify.addLinks(commentText, Linkify.ALL);
 
         TextView username = (TextView) row.findViewById(R.id.username);
         username.setText(comment.getUsername());
