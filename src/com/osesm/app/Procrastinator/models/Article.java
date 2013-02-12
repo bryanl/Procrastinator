@@ -50,7 +50,7 @@ public class Article implements Serializable {
     private final int comments;
 
 
-    private Article(Map<String, String> map) {
+    public Article(Map<String, String> map) {
         this.item_id = map.get("item_id");
         this.url = map.get("url");
         this.title = map.get("title");

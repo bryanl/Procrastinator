@@ -14,6 +14,7 @@ public class DatabaseAdapter {
     private static final int DATABASE_VERSION = 1;
 
     public static final String KEY_ID = "_id";
+    public static final String ARTICLE_FIRST_SEEN_COLUMN = "first_seen";
     public static final String ARTICLE_ID_COLUMN = "article_id";
     public static final String ARTICLE_TITLE_COLUMN = "title";
     public static final String ARTICLE_LAST_COMMENT_COUNT_COLUMN = "last_comment_count";
@@ -24,13 +25,14 @@ public class DatabaseAdapter {
     private static final String DATABASE_CREATE = "create table " +
             ARTICLE_TABLE + " (" + KEY_ID +
             " integer primary key autoincrement, " +
+            ARTICLE_FIRST_SEEN_COLUMN + " integer not null, " +
             ARTICLE_ID_COLUMN + " text not null, " +
             ARTICLE_TITLE_COLUMN + " text not null, " +
             ARTICLE_LAST_COMMENT_COUNT_COLUMN + " integer default 0, " +
             ARTICLE_LAST_POINT_COUNT_COLUMN + " integer default 0, " +
             ARTICLE_COMMENT_COUNT_COLUMN + " integer default 0," +
-            ARTICLE_SCORE_COLUMN + " integer default 0" +
-            ");";
+            ARTICLE_SCORE_COLUMN + " integer default 0," +
+            " unique("+ ARTICLE_ID_COLUMN + "));";
 
     private final Context context;
     private SQLiteDatabase db;
@@ -89,6 +91,7 @@ public class DatabaseAdapter {
     public boolean createArticle(Article article) {
         Logger.d("Saving article: " + article);
         ContentValues values = new ContentValues();
+        values.put(ARTICLE_FIRST_SEEN_COLUMN, System.currentTimeMillis()/1000);
         values.put(ARTICLE_ID_COLUMN, article.getItemId());
         values.put(ARTICLE_TITLE_COLUMN, article.getTitle());
         values.put(ARTICLE_SCORE_COLUMN, article.getScore());
