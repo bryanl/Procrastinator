@@ -3,6 +3,7 @@ package com.osesm.app.Procrastinator;
 import android.app.ActionBar;
 import android.app.FragmentTransaction;
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
@@ -43,6 +44,9 @@ public class HomeActivity extends FragmentActivity {
         if (savedInstanceState != null) {
             bar.setSelectedNavigationItem(savedInstanceState.getInt("tab", 0));
         }
+
+        Intent intent = new Intent(this, HackerNewsService.class);
+        startService(intent);
     }
 
     private void addTab(String title, ArticleListFragment.PageTypes pageType) {

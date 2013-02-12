@@ -26,5 +26,8 @@
                 android:name="ArticleActivity"
                 />
 
+        <service
+            android:name=".HackerNewsService" />
+
     </application>
 </manifest>

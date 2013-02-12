@@ -8,6 +8,7 @@ import org.json.JSONObject;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Scanner;
 
 public class Article implements Serializable{
 
@@ -24,8 +25,12 @@ public class Article implements Serializable{
                 String url = item.getString("url");
                 String title = item.getString("title");
                 String description = item.getString("description");
+                String comments = item.getString("comments");
+                String score = item.getString("score");
 
-                articles.add(new Article(item_id, url, title, description));
+                if (item_id.matches("^\\d")) {
+                    articles.add(new Article(item_id, url, title, description, comments, score));
+                }
             }
 
         } catch (JSONException e) {
@@ -39,14 +44,19 @@ public class Article implements Serializable{
     private final String url;
     private final String title;
     private final String description;
+    private final int score;
+    private final int comments;
 
 
 
-    private Article(String item_id, String url, String title, String description) {
+    private Article(String item_id, String url, String title, String description, String score, String comments) {
         this.item_id = item_id;
         this.url = url;
         this.title = title;
         this.description = description;
+
+        this.score = new Scanner(score).useDelimiter("[^0-9]+").nextInt();
+        this.comments = new Scanner(comments).useDelimiter("[^0-9]+").nextInt();
     }
 
     public String getItemId() {
@@ -65,6 +75,14 @@ public class Article implements Serializable{
         return description;
     }
 
+    public int getScore() {
+        return score;
+    }
+
+    public int getComments() {
+        return comments;
+    }
+
     @Override
     public String toString() {
         return "Article{" +
@@ -72,7 +90,8 @@ public class Article implements Serializable{
                 ", url='" + url + '\'' +
                 ", title='" + title + '\'' +
                 ", description='" + description + '\'' +
+                ", score='" + score + '\'' +
+                ", comments='" + comments + '\'' +
                 '}';
     }
-
 }
