@@ -6,11 +6,9 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Scanner;
+import java.util.*;
 
-public class Article implements Serializable{
+public class Article implements Serializable {
 
     public static List<Article> fromJSON(String json) {
 
@@ -20,21 +18,23 @@ public class Article implements Serializable{
             JSONObject page = new JSONObject(json);
             JSONArray items = page.getJSONArray("items");
             for (int i = 0; i < items.length(); i++) {
-                JSONObject item = items.getJSONObject(i);
-                String item_id = item.optString("item_id");
-                String url = item.getString("url");
-                String title = item.getString("title");
-                String description = item.getString("description");
-                String comments = item.getString("comments");
-                String score = item.getString("score");
 
-                if (item_id.matches("^\\d")) {
-                    articles.add(new Article(item_id, url, title, description, comments, score));
+                Map<String, String> map = new HashMap<String, String>();
+
+                JSONObject item = items.getJSONObject(i);
+
+                String[] keys = {"item_id", "url", "title", "description", "comments", "score", "user", "time"};
+                for (String key : keys) {
+                    map.put(key, item.optString(key));
+                }
+
+                if (map.get("item_id").matches("^\\d")) {
+                    articles.add(new Article(map));
                 }
             }
 
         } catch (JSONException e) {
-            Logger.e("Couldn't parse json because: " + e.getMessage() + "\n" + json, e);
+            Logger.e("Couldn't parse article JSON");
         }
 
         return articles;
@@ -44,19 +44,21 @@ public class Article implements Serializable{
     private final String url;
     private final String title;
     private final String description;
+    private final String user;
+    private final String time;
     private final int score;
     private final int comments;
 
 
-
-    private Article(String item_id, String url, String title, String description, String score, String comments) {
-        this.item_id = item_id;
-        this.url = url;
-        this.title = title;
-        this.description = description;
-
-        this.score = new Scanner(score).useDelimiter("[^0-9]+").nextInt();
-        this.comments = new Scanner(comments).useDelimiter("[^0-9]+").nextInt();
+    private Article(Map<String, String> map) {
+        this.item_id = map.get("item_id");
+        this.url = map.get("url");
+        this.title = map.get("title");
+        this.description = map.get("description");
+        this.user = map.get("user");
+        this.time = map.get("time");
+        this.score = extractLeadingDigits(map.get("score"));
+        this.comments = extractLeadingDigits(map.get("comments"));
     }
 
     public String getItemId() {
@@ -81,6 +83,18 @@ public class Article implements Serializable{
 
     public int getComments() {
         return comments;
+    }
+
+    public String getUser() {
+        return user;
+    }
+
+    public String getTime() {
+        return time;
+    }
+
+    private int extractLeadingDigits(String string) {
+      return new Scanner(string).useDelimiter("[^0-9]+").nextInt();
     }
 
     @Override
