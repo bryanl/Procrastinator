@@ -1,0 +1,5 @@
+#!/bin/sh
+
+DB="procrastinator.db"
+
+adb shell "su -c 'cp /data/data/com.osesm.app.Procrastinator/databases/$DB /sdcard'" && adb pull /sdcard/$DB && echo "select * from articles; select count(*) from articles;" | sqlite3 $DB
