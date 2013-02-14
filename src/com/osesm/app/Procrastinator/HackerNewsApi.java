@@ -18,6 +18,9 @@ public class HackerNewsApi {
 
     private static final String APP_ID = "Procrastinator";
 
+    public static enum TopType {
+        HOME, BEST, NEWEST, ASK
+    }
 
     public static String getJSON(String url) {
         StringBuilder builder = new StringBuilder();
@@ -46,6 +49,20 @@ public class HackerNewsApi {
         }
 
         return builder.toString();
+    }
+
+    public static String getTypeURL(TopType type) {
+        switch(type) {
+            case BEST:
+                return bestPageURL();
+            case NEWEST:
+                return newestPageURL();
+            case ASK:
+                return askPageURL();
+            default:
+                return homePageURL();
+        }
+
     }
 
     public static String homePageURL() {

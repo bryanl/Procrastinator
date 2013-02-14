@@ -47,6 +47,18 @@ public class DatabaseAdapterTest extends AndroidTestCase {
         assertFalse(databaseAdapter.createArticle(article2));
     }
 
+    public void testUpdateRank() {
+        Article article = getArticle(0);
+        assertTrue(databaseAdapter.updateRank(article, DatabaseAdapter.TOP_TYPE.BEST, 1));
+    }
+
+    public void testUpdateReplaceRank() {
+        Article article1 = getArticle(0);
+        databaseAdapter.updateRank(article1, DatabaseAdapter.TOP_TYPE.BEST, 1);
+        Article article2 = getArticle(1);
+        assertTrue(databaseAdapter.updateRank(article2, DatabaseAdapter.TOP_TYPE.BEST, 1));
+    }
+
     private Article getArticle(int id) {
         Map<String, String> map = new HashMap<String, String>();
         map.put("item_id", String.valueOf(id));

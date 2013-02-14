@@ -9,11 +9,12 @@ import com.osesm.app.Procrastinator.models.Article;
 
 public class DatabaseAdapter {
 
-    private static final String DATABASE_NAME = "procrastinator.db";
-    private static final String ARTICLE_TABLE = "articles";
+
     private static final int DATABASE_VERSION = 1;
 
     public static final String KEY_ID = "_id";
+
+
     public static final String ARTICLE_FIRST_SEEN_COLUMN = "first_seen";
     public static final String ARTICLE_ID_COLUMN = "article_id";
     public static final String ARTICLE_TITLE_COLUMN = "title";
@@ -22,17 +23,11 @@ public class DatabaseAdapter {
     public static final String ARTICLE_COMMENT_COUNT_COLUMN = "comment_count";
     public static final String ARTICLE_SCORE_COLUMN = "score";
 
-    private static final String DATABASE_CREATE = "create table " +
-            ARTICLE_TABLE + " (" + KEY_ID +
-            " integer primary key autoincrement, " +
-            ARTICLE_FIRST_SEEN_COLUMN + " integer not null, " +
-            ARTICLE_ID_COLUMN + " text not null, " +
-            ARTICLE_TITLE_COLUMN + " text not null, " +
-            ARTICLE_LAST_COMMENT_COUNT_COLUMN + " integer default 0, " +
-            ARTICLE_LAST_POINT_COUNT_COLUMN + " integer default 0, " +
-            ARTICLE_COMMENT_COUNT_COLUMN + " integer default 0," +
-            ARTICLE_SCORE_COLUMN + " integer default 0," +
-            " unique("+ ARTICLE_ID_COLUMN + "));";
+
+    public static final String TOP_ID_COLUMN = "article_id";
+    public static final String TOP_RANK_COLUMN = "rank";
+    public static final String TOP_TYPE_COLUMN = "type";
+
 
     private final Context context;
     private SQLiteDatabase db;
@@ -91,7 +86,7 @@ public class DatabaseAdapter {
     public boolean createArticle(Article article) {
         Logger.d("Saving article: " + article);
         ContentValues values = new ContentValues();
-        values.put(ARTICLE_FIRST_SEEN_COLUMN, System.currentTimeMillis()/1000);
+        values.put(ARTICLE_FIRST_SEEN_COLUMN, System.currentTimeMillis() / 1000);
         values.put(ARTICLE_ID_COLUMN, article.getItemId());
         values.put(ARTICLE_TITLE_COLUMN, article.getTitle());
         values.put(ARTICLE_SCORE_COLUMN, article.getScore());
@@ -100,6 +95,34 @@ public class DatabaseAdapter {
         long id = db.insert(ARTICLE_TABLE, null, values);
 
         return id != -1;
+    }
+
+    public boolean updateRank(Article article, HackerNewsApi.TopType type, int rank) {
+        Logger.d("Updating rank for " + article.getItemId() + " to " + rank + " in " + type);
+
+        ContentValues values = new ContentValues();
+        values.put(TOP_ID_COLUMN, article.getItemId());
+        values.put(TOP_TYPE_COLUMN, convertTypeToInt(type));
+        values.put(TOP_RANK_COLUMN, rank);
+
+        long id = db.replace(TOP_TABLE, null, values);
+
+        return id != -1;
+    }
+
+    private int convertTypeToInt(HackerNewsApi.TopType type) {
+        switch(type) {
+            case HOME:
+                return 0;
+            case BEST:
+                return 1;
+            case ASK:
+                return 2;
+            case NEWEST:
+                return 3;
+            default:
+                return 0;
+        }
     }
 
 
@@ -112,7 +135,8 @@ public class DatabaseAdapter {
 
         @Override
         public void onCreate(SQLiteDatabase db) {
-            db.execSQL(DATABASE_CREATE);
+            db.execSQL(ARTICLE_DATABASE_CREATE);
+            db.execSQL(TOP_DATABASE_CREATE);
         }
 
         @Override
@@ -120,6 +144,32 @@ public class DatabaseAdapter {
             Logger.w("Upgrading database from version " + oldVersion + " to " + newVersion + ", which will destroy all data");
         }
     }
+
+
+    private static final String DATABASE_NAME = "procrastinator.db";
+    private static final String ARTICLE_TABLE = "articles";
+    private static final String TOP_TABLE = "tops";
+
+
+    private static final String ARTICLE_DATABASE_CREATE = "create table " +
+            ARTICLE_TABLE + " (" + KEY_ID +
+            " integer primary key autoincrement, " +
+            ARTICLE_FIRST_SEEN_COLUMN + " integer not null, " +
+            ARTICLE_ID_COLUMN + " text not null, " +
+            ARTICLE_TITLE_COLUMN + " text not null, " +
+            ARTICLE_LAST_COMMENT_COUNT_COLUMN + " integer default 0, " +
+            ARTICLE_LAST_POINT_COUNT_COLUMN + " integer default 0, " +
+            ARTICLE_COMMENT_COUNT_COLUMN + " integer default 0," +
+            ARTICLE_SCORE_COLUMN + " integer default 0," +
+            " unique(" + ARTICLE_ID_COLUMN + "));";
+
+    private static final String TOP_DATABASE_CREATE = "create table " +
+            TOP_TABLE + " (" + KEY_ID +
+            " integer primary key autoincrement, " +
+            TOP_ID_COLUMN + " integer not null, " +
+            TOP_RANK_COLUMN + " integer not null," +
+            TOP_TYPE_COLUMN + " integer not null," +
+            " unique(" + TOP_RANK_COLUMN + ", " + TOP_TYPE_COLUMN + "));";
 
 
 }
