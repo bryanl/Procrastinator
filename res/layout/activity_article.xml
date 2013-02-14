@@ -8,18 +8,17 @@
 
 
     <FrameLayout
-              android:id="@+id/list_container"
-              android:layout_weight="1"
-              android:layout_width="0dp"
-              android:layout_height="match_parent" />
+            android:id="@+id/list_container"
+            android:layout_weight="1"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"/>
 
 
     <FrameLayout
-              android:id="@+id/comment_container"
-              android:layout_weight="2"
-              android:layout_width="0dp"
-              android:layout_height="match_parent" />
-
+            android:id="@+id/comment_container"
+            android:layout_weight="2"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"/>
 
 
 </LinearLayout>

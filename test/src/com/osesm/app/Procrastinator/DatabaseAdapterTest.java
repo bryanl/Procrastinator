@@ -5,7 +5,10 @@ import android.test.RenamingDelegatingContext;
 import com.osesm.app.Procrastinator.models.Article;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+
+import static com.osesm.app.Procrastinator.HackerNewsApi.TopType;
 
 public class DatabaseAdapterTest extends AndroidTestCase {
 
@@ -49,14 +52,26 @@ public class DatabaseAdapterTest extends AndroidTestCase {
 
     public void testUpdateRank() {
         Article article = getArticle(0);
-        assertTrue(databaseAdapter.updateRank(article, DatabaseAdapter.TOP_TYPE.BEST, 1));
+        assertTrue(databaseAdapter.updateRank(article, TopType.BEST, 1));
     }
 
     public void testUpdateReplaceRank() {
         Article article1 = getArticle(0);
-        databaseAdapter.updateRank(article1, DatabaseAdapter.TOP_TYPE.BEST, 1);
+        databaseAdapter.updateRank(article1, TopType.BEST, 1);
         Article article2 = getArticle(1);
-        assertTrue(databaseAdapter.updateRank(article2, DatabaseAdapter.TOP_TYPE.BEST, 1));
+        assertTrue(databaseAdapter.updateRank(article2, TopType.BEST, 1));
+    }
+
+    public void testGetRankedArticles() {
+        int count = 5;
+        for (int i = 0; i < count; i++) {
+            Article article = getArticle(i);
+            databaseAdapter.createArticle(article);
+            databaseAdapter.updateRank(article, TopType.HOME, i);
+        }
+
+        List<Article> articles = databaseAdapter.getTopArticles(TopType.HOME);
+        assertEquals(count, articles.size());
     }
 
     private Article getArticle(int id) {

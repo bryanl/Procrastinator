@@ -24,27 +24,35 @@ public class HomeActivity extends FragmentActivity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
+//        requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
+//
+//        ViewPager viewPager = new ViewPager(this);
+//        viewPager.setId(R.id.view_pager);
+//        setContentView(viewPager);
+//
+//        final ActionBar bar = getActionBar();
+//        bar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
+//        bar.setDisplayOptions(0, ActionBar.DISPLAY_SHOW_TITLE);
+//
+//        tabsAdapter = new TabsAdapter(this, viewPager);
+//
+//        addTab("Home", ArticleListFragment.PageTypes.HOME);
+//        addTab("Best", ArticleListFragment.PageTypes.BEST);
+//        addTab("Ask HN", ArticleListFragment.PageTypes.ASK);
+//        addTab("New", ArticleListFragment.PageTypes.NEW);
+//
+//        if (savedInstanceState != null) {
+//            bar.setSelectedNavigationItem(savedInstanceState.getInt("tab", 0));
+//        }
 
-        ViewPager viewPager = new ViewPager(this);
-        viewPager.setId(R.id.view_pager);
-        setContentView(viewPager);
 
-        final ActionBar bar = getActionBar();
-        bar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
-        bar.setDisplayOptions(0, ActionBar.DISPLAY_SHOW_TITLE);
+        setContentView(R.layout.activity_article);
 
-        tabsAdapter = new TabsAdapter(this, viewPager);
+        Fragment topArticleFragment = new TopArticleFragment();
+        topArticleFragment.setArguments(getIntent().getExtras());
+        getSupportFragmentManager().beginTransaction().add(R.id.list_container, topArticleFragment).commit();
 
-        addTab("Home", ArticleListFragment.PageTypes.HOME);
-        addTab("Best", ArticleListFragment.PageTypes.BEST);
-        addTab("Ask HN", ArticleListFragment.PageTypes.ASK);
-        addTab("New", ArticleListFragment.PageTypes.NEW);
-
-        if (savedInstanceState != null) {
-            bar.setSelectedNavigationItem(savedInstanceState.getInt("tab", 0));
-        }
-
+//
         Intent intent = new Intent(this, HackerNewsService.class);
         startService(intent);
     }

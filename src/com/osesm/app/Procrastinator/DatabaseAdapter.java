@@ -5,24 +5,29 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.database.sqlite.SQLiteQueryBuilder;
 import com.osesm.app.Procrastinator.models.Article;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 public class DatabaseAdapter {
-
-
     private static final int DATABASE_VERSION = 1;
 
     public static final String KEY_ID = "_id";
 
-
     public static final String ARTICLE_FIRST_SEEN_COLUMN = "first_seen";
     public static final String ARTICLE_ID_COLUMN = "article_id";
+    public static final String ARTICLE_URL_COLUMN = "url";
     public static final String ARTICLE_TITLE_COLUMN = "title";
     public static final String ARTICLE_LAST_COMMENT_COUNT_COLUMN = "last_comment_count";
     public static final String ARTICLE_LAST_POINT_COUNT_COLUMN = "last_score";
     public static final String ARTICLE_COMMENT_COUNT_COLUMN = "comment_count";
     public static final String ARTICLE_SCORE_COLUMN = "score";
-
+    public static final String ARTICLE_USER_COLUMN = "user";
+    public static final String ARTICLE_DESCRIPTION_COLUMN = "description";
 
     public static final String TOP_ID_COLUMN = "article_id";
     public static final String TOP_RANK_COLUMN = "rank";
@@ -38,7 +43,8 @@ public class DatabaseAdapter {
     }
 
     public DatabaseAdapter open() {
-        helper = new DatabaseHelper(context);
+        SQLiteDatabase.CursorFactory cursorFactory = new SQLiteCursorFactory(true);
+        helper = new DatabaseHelper(context, cursorFactory);
         db = helper.getReadableDatabase();
         return this;
     }
@@ -91,6 +97,9 @@ public class DatabaseAdapter {
         values.put(ARTICLE_TITLE_COLUMN, article.getTitle());
         values.put(ARTICLE_SCORE_COLUMN, article.getScore());
         values.put(ARTICLE_COMMENT_COUNT_COLUMN, article.getComments());
+        values.put(ARTICLE_DESCRIPTION_COLUMN, article.getDescription());
+        values.put(ARTICLE_USER_COLUMN, article.getUser());
+        values.put(ARTICLE_URL_COLUMN, article.getUrl());
 
         long id = db.insert(ARTICLE_TABLE, null, values);
 
@@ -110,8 +119,45 @@ public class DatabaseAdapter {
         return id != -1;
     }
 
+    public List<Article> getTopArticles(HackerNewsApi.TopType type) {
+        List<Article> articles = new ArrayList<Article>();
+
+        String projection[] = {ARTICLE_TABLE + "." + ARTICLE_ID_COLUMN, ARTICLE_URL_COLUMN, ARTICLE_TITLE_COLUMN,
+                ARTICLE_DESCRIPTION_COLUMN, ARTICLE_LAST_COMMENT_COUNT_COLUMN,
+                ARTICLE_LAST_POINT_COUNT_COLUMN, ARTICLE_USER_COLUMN};
+
+        String selection = TOP_TABLE + "." + TOP_TYPE_COLUMN + " = ?";
+        String selectionArgs[] = {String.valueOf(convertTypeToInt(type))};
+        String order = TOP_TABLE + "." + TOP_RANK_COLUMN + " asc";
+
+        SQLiteQueryBuilder queryBuilder = new SQLiteQueryBuilder();
+        queryBuilder.setTables(ARTICLE_TABLE + " left outer join " + TOP_TABLE +
+                " on " + ARTICLE_TABLE + "." + ARTICLE_ID_COLUMN + " = " +
+                TOP_TABLE + "." + TOP_ID_COLUMN);
+        Logger.d(queryBuilder.toString());
+        Cursor cursor = queryBuilder.query(db, projection, selection, selectionArgs, null, null, order);
+
+        cursor.moveToFirst();
+        while (!cursor.isAfterLast()) {
+            Map<String, String> map = new HashMap<String, String>();
+            map.put("item_id", cursor.getString(0));
+            map.put("url", cursor.getString(1));
+            map.put("title", cursor.getString(2));
+            map.put("description", cursor.getString(3));
+            map.put("comments", cursor.getString(4));
+            map.put("score", cursor.getString(5));
+            map.put("user", cursor.getString(6));
+            map.put("time", "0");
+            articles.add(new Article(map));
+
+            cursor.moveToNext();
+        }
+
+        return articles;
+    }
+
     private int convertTypeToInt(HackerNewsApi.TopType type) {
-        switch(type) {
+        switch (type) {
             case HOME:
                 return 0;
             case BEST:
@@ -127,9 +173,8 @@ public class DatabaseAdapter {
 
 
     private static class DatabaseHelper extends SQLiteOpenHelper {
-
-        public DatabaseHelper(Context context) {
-            super(context, DATABASE_NAME, null, DATABASE_VERSION);
+        public DatabaseHelper(Context context, SQLiteDatabase.CursorFactory cursorFactory) {
+            super(context, DATABASE_NAME, cursorFactory, DATABASE_VERSION);
         }
 
 
@@ -145,17 +190,18 @@ public class DatabaseAdapter {
         }
     }
 
-
     private static final String DATABASE_NAME = "procrastinator.db";
     private static final String ARTICLE_TABLE = "articles";
     private static final String TOP_TABLE = "tops";
-
 
     private static final String ARTICLE_DATABASE_CREATE = "create table " +
             ARTICLE_TABLE + " (" + KEY_ID +
             " integer primary key autoincrement, " +
             ARTICLE_FIRST_SEEN_COLUMN + " integer not null, " +
             ARTICLE_ID_COLUMN + " text not null, " +
+            ARTICLE_URL_COLUMN + " text not null, " +
+            ARTICLE_DESCRIPTION_COLUMN + " text not null, " +
+            ARTICLE_USER_COLUMN + " text not null, " +
             ARTICLE_TITLE_COLUMN + " text not null, " +
             ARTICLE_LAST_COMMENT_COUNT_COLUMN + " integer default 0, " +
             ARTICLE_LAST_POINT_COUNT_COLUMN + " integer default 0, " +
