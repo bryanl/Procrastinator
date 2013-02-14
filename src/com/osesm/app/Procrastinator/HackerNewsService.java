@@ -17,7 +17,9 @@ public class HackerNewsService extends IntentService {
     protected void onHandleIntent(Intent intent) {
         Logger.d("Starting up HackerNewsService");
         String json = HackerNewsApi.getJSON(HackerNewsApi.homePageURL());
+        Logger.d(json);
         List<Article> articles = Article.fromJSON(json);
+        Logger.d("Fetched " + articles.size() + " articles");
 
         DatabaseAdapter databaseAdapter = new DatabaseAdapter(getApplicationContext());
         databaseAdapter.open();
@@ -33,5 +35,7 @@ public class HackerNewsService extends IntentService {
         }
 
         databaseAdapter.close();
+
+        Logger.d("Shutting down HackerNewsService");
     }
 }

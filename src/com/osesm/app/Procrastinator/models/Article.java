@@ -11,6 +11,7 @@ import java.util.*;
 public class Article implements Serializable {
 
     public static List<Article> fromJSON(String json) {
+        Logger.d("Converting JSON to articles");
 
         List<Article> articles = new ArrayList<Article>();
 
@@ -23,14 +24,24 @@ public class Article implements Serializable {
 
                 JSONObject item = items.getJSONObject(i);
 
+
                 String[] keys = {"item_id", "url", "title", "description", "comments", "score", "user", "time"};
                 for (String key : keys) {
                     map.put(key, item.optString(key));
                 }
 
-                if (map.get("item_id").matches("^\\d")) {
-                    articles.add(new Article(map));
+                Article article;
+                try {
+                    article = new Article(map);
+                } catch (Exception e) {
+                    article = null;
+                    Logger.w("Unable to parse an article");
                 }
+
+                if (article != null)
+                    articles.add(article);
+
+
             }
 
         } catch (JSONException e) {
@@ -94,7 +105,7 @@ public class Article implements Serializable {
     }
 
     private int extractLeadingDigits(String string) {
-      return new Scanner(string).useDelimiter("[^0-9]+").nextInt();
+        return new Scanner(string).useDelimiter("[^0-9]+").nextInt();
     }
 
     @Override

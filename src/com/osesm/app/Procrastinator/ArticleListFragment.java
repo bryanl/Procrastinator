@@ -36,7 +36,7 @@ public class ArticleListFragment extends ListFragment {
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        new FetchHomePageTask(this, url(), articles).execute();
+//        new FetchHomePageTask(this, url(), articles).execute();
     }
 
     @Override
@@ -82,7 +82,7 @@ public class ArticleListFragment extends ListFragment {
         Bundle bundle = getArguments();
         if (bundle != null) {
             return bundle.getString(PAGE_TYPE);
-        }  else {
+        } else {
             return String.valueOf(PageTypes.HOME);
 
         }
