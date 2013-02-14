@@ -1,8 +1,10 @@
 package com.osesm.app.Procrastinator;
 
 import android.app.IntentService;
+import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
+import android.os.PowerManager;
 import com.osesm.app.Procrastinator.models.Article;
 
 import java.util.List;
@@ -15,7 +17,13 @@ public class HackerNewsService extends IntentService {
 
     @Override
     protected void onHandleIntent(Intent intent) {
+        Context context = getApplicationContext();
+        PowerManager pm = (PowerManager) context.getSystemService(Context.POWER_SERVICE);
+        PowerManager.WakeLock wl = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "");
+        wl.acquire();
+
         Logger.d("Starting up HackerNewsService");
+
 
         HackerNewsApi.TopType endPoints[] = {HackerNewsApi.TopType.HOME,
                 HackerNewsApi.TopType.BEST,
@@ -27,6 +35,8 @@ public class HackerNewsService extends IntentService {
         }
 
         Logger.d("Shutting down HackerNewsService");
+
+        wl.release();
     }
 
     private void updateArticles(HackerNewsApi.TopType type) {
